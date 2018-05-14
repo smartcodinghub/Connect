@@ -7,50 +7,98 @@ namespace Connect
     {
         static void Main(string[] args)
         {
-            bool?[,] tiles = new bool?[5, 8];
+            Game game = new Game(8, 5);
+            game.Start();
+        }
+    }
 
-            tiles[0, 3] = true;
-            tiles[0, 4] = false;
+    public class Game
+    {
+        private bool?[,] tiles;
+        private int width;
+        private int height;
+        private bool player;
 
-            int xLength = tiles.GetLength(0);
-            int yLength = tiles.GetLength(1);
-            string read = null;
+        public Game(int width, int height)
+        {
+            this.tiles = new bool?[width, height];
+            this.width = width;
+            this.height = height;
+            this.player = Convert.ToBoolean(new Random().Next(1));
+        }
+
+        public void Start()
+        {
             StringBuilder sb = new StringBuilder();
+
+            Print(sb);
+            string read = Console.ReadLine();
 
             while(read != ":q")
             {
-                sb.Clear();
-                Console.SetCursorPosition(0, 0);
-                for(int i = 0; i < xLength; i++)
-                {
-                    sb.Append('-', xLength * 3 + 2);
-                    sb.AppendLine();
+                bool processed = TryProcessInput(read);
 
-                    for(int j = 0; j < yLength; j++)
-                    {
-                        sb.Append("|");
-                        sb.Append(PrintValue(tiles[i, j]));
-                    }
-
-                    sb.AppendLine("|");
-                }
-
-                sb.Append('-', xLength * 3 + 2);
-
-                Console.WriteLine(sb.ToString());
-
-                Console.Write("Elige linea: ");
+                Print(sb);
                 read = Console.ReadLine();
 
-                int column = int.Parse(read) - 1;
-
-                tiles[0, column] = true;
+                this.player = processed ^ player;
             }
         }
 
-        private static string PrintValue(bool? value)
+        private string Retry()
         {
-            return value.HasValue ? value.Value ? "X" : "O" : " ";
+            throw new NotImplementedException();
         }
+
+        private bool TryProcessInput(string read)
+        {
+            if(!int.TryParse(read, out int column) || column < 0 || column >= width)
+            {
+                return false;
+            }
+
+            column--;
+            int row = height - 1;
+
+            while(tiles[column, row] != null)
+            {
+                row--;
+                if(row < 0) return false;
+            }
+
+            tiles[column, row] = player;
+            return true;
+        }
+
+        private void Print(StringBuilder sb)
+        {
+            // Clean
+            sb.Clear();
+            Console.SetCursorPosition(0, 0);
+
+            // Paint table
+            for(int i = 0; i < height; i++)
+            {
+                sb.Append('-', width * 2 + 1);
+                sb.AppendLine();
+
+                for(int j = 0; j < width; j++)
+                {
+                    sb.Append("|");
+                    sb.Append(PrintValue(tiles[j, i]));
+                }
+
+                sb.AppendLine("|");
+            }
+
+            sb.Append('-', width * 2 + 1);
+
+            // Paint end
+            Console.WriteLine(sb.ToString());
+            Console.Write("Elige linea:     ");
+            Console.SetCursorPosition(Console.CursorLeft - 4, Console.CursorTop);
+        }
+
+        private static string PrintValue(bool? value) => value.HasValue ? value.Value ? "X" : "O" : " ";
     }
 }
