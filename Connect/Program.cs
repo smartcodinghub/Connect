@@ -41,13 +41,12 @@ namespace Connect
                 Print(sb);
                 read = Console.ReadLine();
 
+                //  true   ^  true    => false
+                //  true   ^  false   => true
+                //  false  ^  true    => true
+                //  false  ^  false   => false
                 this.player = processed ^ player;
             }
-        }
-
-        private string Retry()
-        {
-            throw new NotImplementedException();
         }
 
         private bool TryProcessInput(string read)
