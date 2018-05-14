@@ -45,7 +45,7 @@ namespace Connect
                 //  true   ^  false   => true
                 //  false  ^  true    => true
                 //  false  ^  false   => false
-                this.player = processed ^ player;
+                this.player = processed ^ player; // processed ? !player : player
             }
         }
 
