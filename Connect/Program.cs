@@ -9,6 +9,8 @@ namespace Connect
         {
             Game game = new Game(8, 5);
             game.Start();
+
+            Console.ReadLine();
         }
     }
 
@@ -18,6 +20,7 @@ namespace Connect
         private int width;
         private int height;
         private bool player;
+        private (int, int) latestTile;
 
         public Game(int width, int height)
         {
@@ -38,6 +41,10 @@ namespace Connect
             {
                 bool processed = TryProcessInput(read);
 
+                bool win = CheckWin();
+
+                if(win) { Console.WriteLine($"WINNER {PrintValue(player)}"); break; }
+
                 Print(sb);
                 read = Console.ReadLine();
 
@@ -47,6 +54,28 @@ namespace Connect
                 //  false  ^  false   => false
                 this.player = processed ^ player; // processed ? !player : player
             }
+        }
+
+        private bool CheckWin()
+        {
+            var (col, row) = latestTile;
+
+            var (incX, incY) = (1, 1);
+
+            int left = Math.Max(0, col - 3), right = Math.Min(col + 3, width - 1);
+            int top = Math.Max(0, row - 3), bottom = Math.Min(row + 3, height - 1);
+            int count = 0;
+
+            for(int x = left, y = bottom; x < right && y >= top; x += incX, y -= incY)
+            {
+                if(tiles[x, y] == player)
+                {
+                    if(++count == 4) return true;
+                }
+                else if(count > 0) return false;
+            }
+
+            return count == 4;
         }
 
         private bool TryProcessInput(string read)
@@ -66,6 +95,7 @@ namespace Connect
             }
 
             tiles[column, row] = player;
+            this.latestTile = (column, row);
             return true;
         }
 
